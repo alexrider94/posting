@@ -1,0 +1,12 @@
+{
+    "type": "mariadb",
+    "host": "115.85.182.177",
+    "port": 3306,
+    "username": "root",
+    "password": "1234",
+    "database": "board",
+    "entities": [
+        "src/entity/*.ts"
+    ],
+    "synchronize": true
+}
