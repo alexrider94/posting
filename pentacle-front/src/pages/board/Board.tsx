@@ -1,8 +1,8 @@
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
-import { LOGOUT, DECODE_TOKEN, DELETE_USER} from '../../services/API';
+import { LOGOUT } from '../../services/API';
 import {BoardList} from '../../stories/BoardList';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {BoardDetail} from '../../stories/BoardDetail';
 import {BoardCreate} from '../../stories/BoardCreate';
 import {SideMenu} from '../../stories/SideMenu';
@@ -15,7 +15,8 @@ import MenuIcon from '@material-ui/icons/Menu';
 import clsx from 'clsx';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import Typography from '@material-ui/core/Typography';
-
+import { useRecoilState }from 'recoil';
+import { clickState } from '../../recoil/atoms';
 const drawerWidth = 380;
 
 const useStyles = makeStyles((theme) => ({
@@ -70,25 +71,10 @@ const useStyles = makeStyles((theme) => ({
     }
 }))
 
-
 function Board() {
-    const [no, setNo] = useState(null);
-    const [clicked, setClicked] = useState(false);
-    const [created, setCreated] = useState(false);
-    const [userInfo, setUserInfo] = useState({});
-    const [clickUserInfo, setClickUserInfo] = useState(false);
-    const [clickMyBoard, setClickMyBoard] = useState(false);
     const [clickDrawer, setClickDrawer] = useState(false);
-
-    useEffect(()=>{
-        const token = localStorage.getItem("user");
-        DECODE_TOKEN({ token }).then((decode) => {
-            setUserInfo(decode);
-        });
-    },[]);
-
+    const [clickInfo, setClickInfo] = useRecoilState(clickState);
     const handleDrawerOpen = () => {
-        console.log("test")
         setClickDrawer(true);
     };
 
@@ -96,64 +82,13 @@ function Board() {
         setClickDrawer(false);
     };
 
-    const handleLogout = async (evt:any) => {
-        evt.preventDefault();
+    const handleLogout = async () => {
         LOGOUT();
         window.location.reload();
     }
 
-    const handlecreate = (evt:any) => {
-        evt.preventDefault();
-        setCreated(true);
-    }
-
-    const createBack = () => {
-        setCreated(false);
-    }
-
-    const getNo = (value:any) => {
-        setNo(value);
-        setClicked(true);
-    }
-
-    const handleBack = () => {
-        setClicked(false);
-    }
-
-    const handleUserDelete = () => {
-        const userNo = userInfo;
-        DELETE_USER({ userNo }).then((res) => {
-            if (res.data === true){
-                LOGOUT();
-                alert("user deleted");
-                window.location.reload();
-            }
-            else{
-                alert("user delete error");
-            }
-        })
-    }
-
-    const handleUserInfo = () => {
-        setClickUserInfo(true)
-    }
-
-    const userInfoBack = () => {
-        setClickUserInfo(false)
-    }
-
-    const handleMyBoard = () => {
-        setClickMyBoard(true)
-    }
-
-    const myBoardBack = () => {
-        setClickMyBoard(false)
-    }
-
-    const getMyNo = (value:any) => {
-        setNo(value);
-        setClickMyBoard(false);
-        setClicked(true);
+    const handlecreate = () => {
+        setClickInfo('BoardCreatePage');
     }
 
     const classes = useStyles();
@@ -173,24 +108,24 @@ function Board() {
                 </div>
                 <Grid container spacing={1}>
                     <Grid item xs={12}>
-                        {clickMyBoard ? (
+                        {clickInfo === 'MyBoardListPage' ? (
                             <>
-                                <MyBoardList userInfo={userInfo} myBoardBack={myBoardBack} getBoardNo={getMyNo} setClickMyBoard={setClickMyBoard}></MyBoardList>
+                                <MyBoardList></MyBoardList>
                             </>
                         ) : (
                             <>
-                                    {clickUserInfo ? (
+                                    {clickInfo === 'UserInfoPage' ? (
                                         <>
-                                            <UserInfo userInfo={userInfo} userInfoBack={userInfoBack}></UserInfo>
+                                            <UserInfo></UserInfo>
                                         </>
                                     ) : (
                                             <>
-                                                {clicked ? (
-                                                    <BoardDetail handleBack={handleBack} data={no}></BoardDetail>
+                                                {clickInfo === 'BoardDetailPage' ? (
+                                                    <BoardDetail></BoardDetail>
                                                 ) : (
                                                         <>
-                                                            {created ? (
-                                                                <BoardCreate createBack={createBack}></BoardCreate>
+                                                            {clickInfo === 'BoardCreatePage' ? (
+                                                                <BoardCreate></BoardCreate>
                                                             ) : (
                                                                     <>
                                                                         <div className={classes.create} >
@@ -198,7 +133,7 @@ function Board() {
                                                                                 <Typography>P o s t</Typography>
                                                                             </Button>
                                                                         </div>
-                                                                        <BoardList getBoardNo={getNo}></BoardList>
+                                                                        <BoardList></BoardList>
                                                                     </>
                                                                 )}
                                                         </>
@@ -220,8 +155,7 @@ function Board() {
                         <IconButton onClick={handleDrawerClose}>
                             <ChevronRightIcon />
                         </IconButton>
-                        <SideMenu userInfo={userInfo} handleUserDelete={handleUserDelete} handleUserInfo={handleUserInfo} handleMyBoard={handleMyBoard}></SideMenu>
-
+                        <SideMenu></SideMenu>
 
                         <Button className={classes.logout} variant="contained" onClick={handleLogout}>로그아웃</Button>
 

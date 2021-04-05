@@ -2,10 +2,12 @@ import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import { makeStyles } from '@material-ui/core/styles';
 import { useState } from 'react';
-import { LOGIN } from '../services/API';
+import { DECODE_TOKEN, GET_USER_INFO, LOGIN } from '../services/API';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
 import React from 'react';
+import { userState } from '../recoil/atoms';
+import { useRecoilState, useRecoilValue } from 'recoil';
 
 const useStyles = makeStyles({
     root: {
@@ -60,6 +62,7 @@ export const Login:React.FC<ChildProps> = (props:any) =>  {
 
     const [id, setID] = useState("");
     const [pw, setPW] = useState("");
+    const [userInfo, setUserInfo] = useRecoilState(userState);
 
     let [loginStatus, setloginStatus] = useState("");
 
@@ -73,8 +76,15 @@ export const Login:React.FC<ChildProps> = (props:any) =>  {
                 setPW("");
             }
             else {
+                localStorage.setItem('user',res);
                 setloginStatus("");
-                window.location.reload();
+                const userData = await GET_USER_INFO();
+                const userAuthInfo = {
+                    isAuth: true,
+                    user: userData,
+                };
+                setUserInfo(userAuthInfo);
+                console.log(userInfo);
             }
         } catch (error) {
             console.log(error);

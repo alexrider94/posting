@@ -7,6 +7,10 @@ import Divider from '@material-ui/core/Divider';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import React from 'react';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { clickState } from '../recoil/atoms';
+import { DELETE_USER, LOGOUT } from '../services/API';
+import { userInfoState } from '../recoil/selector';
 
 const useStyles = makeStyles((theme:any) => ({
     sideRoot: {
@@ -23,16 +27,27 @@ const useStyles = makeStyles((theme:any) => ({
         color:"red",
     }
 }))
-interface ChildProps {
-    userInfo?: any;
-    handleUserDelete?: any;
-    handleUserInfo?: any;
-    handleMyBoard?: any;
+export interface SideMenuProps {
 }
-export const SideMenu:React.FC<ChildProps> = (props:any) => {
-    console.log(props);
-    const classes = useStyles();
 
+export const SideMenu:React.FC<SideMenuProps> = (props:any) => {
+    const classes = useStyles();
+    const [clickInfo, setClickInfo] = useRecoilState(clickState);
+    const user = useRecoilValue(userInfoState);
+
+    const handleUserDelete = () => {
+        let userNo = user.no;
+        DELETE_USER({ userNo }).then((res) => {
+            if (res === true){
+                LOGOUT();
+                alert("user deleted");
+                window.location.reload();
+            }
+            else{
+                alert("user delete error");
+            }
+        })
+    }
     return (
         <div className={classes.sideRoot}>
             <Grid container justify="center">
@@ -40,19 +55,19 @@ export const SideMenu:React.FC<ChildProps> = (props:any) => {
             </Grid>
             <Grid container justify="center">
                 <Typography gutterBottom variant="h5">
-                    {props.userInfo.name}
+                    {props.userInfo}
                         </Typography>
             </Grid>
             <Divider />
             <Grid container justify="center">
                 <List>
-                    <ListItem button onClick={props.handleUserInfo}>
+                    <ListItem button onClick={()=>{setClickInfo('UserInfoPage')}}>
                         <ListItemText>유저정보</ListItemText>
                     </ListItem>
-                    <ListItem button onClick={props.handleMyBoard}>
+                    <ListItem button onClick={()=>{setClickInfo('MyBoardListPage')}}>
                         <ListItemText>작성글보기</ListItemText>
                     </ListItem>
-                    <ListItem button onClick={props.handleUserDelete}>
+                    <ListItem button onClick={handleUserDelete}>
                         <ListItemText className={classes.deleteAcc}>탈퇴하기</ListItemText>
                     </ListItem>
                 </List>

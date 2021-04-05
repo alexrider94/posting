@@ -25,11 +25,10 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-interface ChildProps {
-    getBoardNo?: any;
+export interface BoardListProps {
 }
 
-export const BoardList:React.FC<ChildProps> = (props:any) => {
+export const BoardList:React.FC<BoardListProps> = (props:any) => {
     const classes = useStyles();
     const [board, setBoard] = useState([]);
 
@@ -39,16 +38,11 @@ export const BoardList:React.FC<ChildProps> = (props:any) => {
         });
     }, []);
 
-    const handleClick = (no:any) => {
-        props.getBoardNo(no);
-    }
-
     const renderStickyPaper = () => {
-        console.log(board);
         const stickyPaper = board.map((b) => {
             const no = Math.floor(Math.random()*4 + 1);
             return (
-                <StickyPaper value={b} randNo={no} handleClick={handleClick}></StickyPaper>
+                <StickyPaper value={b} randNo={no}></StickyPaper>
             )
         })
         return stickyPaper

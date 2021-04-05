@@ -6,36 +6,13 @@ import stickyImg4 from '../img/sticky_4.png';
 import stickyImg5 from '../img/sticky_5.png';
 import Typography from '@material-ui/core/Typography';
 import React from 'react';
-import { Props } from 'react';
+import { getTimeStamp } from '../services/common';
+import { useRecoilState } from 'recoil';
+import { clickState, currentBoardNoState } from '../recoil/atoms';
+
 const imgList = [stickyImg1,stickyImg2,stickyImg3,stickyImg4,stickyImg5]
 
-function getTimeStamp(date:any) {
-    let d = new Date(date);
-    let s =
-        leadingZeros(d.getFullYear(), 4) + '-' +
-        leadingZeros(d.getMonth() + 1, 2) + '-' +
-        leadingZeros(d.getDate(), 2) + ' ' +
-
-        leadingZeros(d.getHours(), 2) + ':' +
-        leadingZeros(d.getMinutes(), 2) + ':' +
-        leadingZeros(d.getSeconds(), 2);
-
-    return s;
-}
-
-function leadingZeros(n:any, digits:any) {
-    let zero = '';
-    n = n.toString();
-
-    if (n.length < digits) {
-        for (let i = 0; i < digits - n.length; i++)
-            zero += '0';
-    }
-    return zero + n;
-}
-
-
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
     paperRoot:{
         position:"relative",
         padding:5,
@@ -67,15 +44,26 @@ const useStyles = makeStyles((theme) => ({
         left: 45
     }
 }))
-interface ChildProps {
-    value?: any;
-    randNo?: number;
-    handleClick?: any;
+
+export interface StickyPaperProps {
+    value: {
+        no: number;
+        createdDate: string;
+        b_content: string;
+        title: string;
+        user: {
+            no: number;
+            id: string;
+            name: string;
+        }
+    };
+    randNo: number;
 }
 
-export const StickyPaper:React.FC<ChildProps> = (props) => {
+export const StickyPaper:React.FC<StickyPaperProps> = (props) => {
+    const [boardNo, setBoardNo] = useRecoilState(currentBoardNoState);
+    const [clickInfo, setClickInfo] = useRecoilState(clickState);
     const classes = useStyles();
-    console.log(props.value);
     return (
         <div className={classes.paperRoot}>
             <div className={classes.space}>
@@ -88,7 +76,12 @@ export const StickyPaper:React.FC<ChildProps> = (props) => {
             <div className={classes.date}>
                 {getTimeStamp(props.value.createdDate)}
             </div>
-            <img src={imgList[1]} className={classes.img} onClick={()=>{props.handleClick(props.value.no)}}></img>
+            <img src={imgList[props.randNo]} className={classes.img} onClick={
+                ()=>{
+                    setBoardNo(props.value.no);
+                    setClickInfo('BoardDetailPage');
+                }
+            } alt="error"></img>
         </div>
     );
 }

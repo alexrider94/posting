@@ -1,13 +1,14 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Story, Meta } from '@storybook/react';
-
-import { BoardCreate } from './BoardCreate';
+import { RecoilRoot } from 'recoil';
+import { BoardCreate, BoardCreateProps} from './BoardCreate';
 
 export default {
   title: 'BoardPage/BoardCreate',
   component: BoardCreate,
+  decorators: [(storyFn) => <RecoilRoot><Suspense fallback={<div>Loading...</div>}>{storyFn()}</Suspense></RecoilRoot>],
 } as Meta;
 
-const Template: Story = () => <BoardCreate createBack/>;
+const Template: Story<BoardCreateProps> = () => <BoardCreate />;
 
 export const boardCreate = Template.bind({});

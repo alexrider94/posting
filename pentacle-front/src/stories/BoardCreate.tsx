@@ -1,8 +1,12 @@
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
-import { CREATE_BOARD, DECODE_TOKEN } from '../services/API';
+
+import { CREATE_BOARD } from '../services/API';
 import React, { useState } from 'react';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { userInfoState } from '../recoil/selector';
+import { clickState } from '../recoil/atoms';
 
 const useStyles = makeStyles({
     root: {
@@ -40,27 +44,30 @@ const useStyles = makeStyles({
 
 })
 
-interface ChildProps {
-    createBack?: any;
+export interface BoardCreateProps {
+    title?: string
+    content?: string
 }
 
-export const BoardCreate:React.FC<ChildProps> = (props:any) => {
+export const BoardCreate:React.FC<BoardCreateProps> = () => {
     const [title,setTitle] = useState("");
     const [content,setContent] = useState("");
+
+    const user = useRecoilValue(userInfoState);
+    const [clickInfo, setClickInfo] = useRecoilState(clickState);
 
     const handleCreate = () => {
         if(title === "" || content === "") {
             alert("empty content or title");
             return;
         }
-        const token = localStorage.getItem("user");
-        DECODE_TOKEN({token}).then((res)=>{
-            const no = res.no;
-            CREATE_BOARD({ title, content, no }).catch((err) => { console.log(err) }).then((res)=>{
-                console.log(res);
-                props.createBack();
+
+        const no = user.no;
+        CREATE_BOARD({ title, content, no })
+            .catch((err) => { console.log(err) })
+            .then(()=>{
+                setClickInfo('BoardPage');
             });
-        });
     }
 
     const classes = useStyles();
@@ -75,7 +82,7 @@ export const BoardCreate:React.FC<ChildProps> = (props:any) => {
                 </form>
             </div>
             <div>
-                <Button className={classes.backBtn} variant="contained" onClick={props.createBack}>뒤로가기</Button>
+                <Button className={classes.backBtn} variant="contained" onClick={()=>{setClickInfo('BoardPage')}}>뒤로가기</Button>
                 <Button className={classes.createBtn} variant="contained" onClick={handleCreate}>생성하기</Button>
             </div>
         </>

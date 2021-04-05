@@ -1,7 +1,4 @@
-
-import Button from '@material-ui/core/Button';
-import React, { useEffect, useState } from 'react';
-import { GET_BOARD_INFO, DECODE_TOKEN, DELETE_BOARD, CREATE_COMMENT } from '../services/API';
+/* material-ui */
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
@@ -14,8 +11,22 @@ import InputBase from '@material-ui/core/InputBase';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
 import CreateIcon from '@material-ui/icons/Create';
-import StickyMemoImg from '../img/sticky_memo.png';
+import Button from '@material-ui/core/Button';
+
+/* react hook */
+import React, { useEffect, useState } from 'react';
+
+/* graphql API and Common func*/
+import { GET_BOARD_INFO, DELETE_BOARD, CREATE_COMMENT } from '../services/API';
+import { getTimeStamp } from '../services/common';
+
+/* postit css file */
 import './post.css';
+
+/* state */
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { currentBoardInfoState, userInfoState } from '../recoil/selector';
+import { clickState, currentBoardNoState } from '../recoil/atoms';
 
 const useStyles = makeStyles({
     root: {
@@ -86,38 +97,12 @@ const useStyles = makeStyles({
     }
 })
 
-function getTimeStamp(date:any) {
-    let d = new Date(date);
-    let s =
-        leadingZeros(d.getFullYear(), 4) + '-' +
-        leadingZeros(d.getMonth() + 1, 2) + '-' +
-        leadingZeros(d.getDate(), 2) + ' ' +
-
-        leadingZeros(d.getHours(), 2) + ':' +
-        leadingZeros(d.getMinutes(), 2) + ':' +
-        leadingZeros(d.getSeconds(), 2);
-
-    return s;
+export interface BoardDetailProps {
 }
 
-function leadingZeros(n:any, digits:any) {
-    let zero = '';
-    n = n.toString();
-
-    if (n.length < digits) {
-        for (let i = 0; i < digits - n.length; i++)
-            zero += '0';
-    }
-    return zero + n;
-}
-
-interface ChildProps {
-    handleBack?: any;
-    data?: any;
-}
-
-export const BoardDetail:React.FC<ChildProps> = (props:any) =>  {
+export const BoardDetail:React.FC<BoardDetailProps> = () =>  {
     const classes = useStyles();
+
     const boardInfo = {
         no: null,
         title: "",
@@ -125,49 +110,51 @@ export const BoardDetail:React.FC<ChildProps> = (props:any) =>  {
         createdDate: "",
         name: "",
     }
-    const [comment, setComment] = useState("");
+
     const [change, setChange] = useState(false);
-    const [commentList, setCommentList] = useState([]);
     const [info, setInfo] = useState(boardInfo);
     const [isAuth, setIsAuth] = useState(false);
-    const [uNo, setuNo] = useState(null);
+
+    /*  commentPageLocalState */
     const itemsPerPage = 3;
+    const [comment, setComment] = useState("");
+    const [commentList, setCommentList] = useState([]);
     const [page, setPage] = useState(1);
     const [noOfPages, setNoOfPages] = useState(
         Math.ceil(commentList.length / itemsPerPage)
     );
 
-    useEffect(() => {
-        const token = localStorage.getItem("user");
-
-        DECODE_TOKEN({ token }).then((decode) => {
-            const userNo = decode.no;
-            setuNo(userNo);
-            const no = props.data;
-            GET_BOARD_INFO({ no }).then((res) => {
-                if (userNo === res[0].userNo) {
-                    setIsAuth(true);
-                }
-                const date = new Date(res[0].createdDate);
-                res[0].createdDate = getTimeStamp(date);
-                setInfo(res[0]);
-            });
-        });
-    }, []);
+    const user = useRecoilValue(userInfoState);
+    const currentBoardNo = useRecoilValue(currentBoardNoState);
+    const [clickInfo, setClickInfo] = useRecoilState(clickState);
+    const currentBoardInfo = useRecoilValue(currentBoardInfoState);
 
     useEffect(() => {
-        const boardNo = props.data;
-        GET_BOARD_INFO({ boardNo }).then((boardList) => {
-            setCommentList(boardList.data.reverse());
-            setNoOfPages(Math.ceil(boardList.data.length / itemsPerPage));
+        if (user.no === currentBoardInfo.user.no) {
+            setIsAuth(true);
+        }
+        const date = new Date(Number(currentBoardInfo.createdDate));
+        let newDate = getTimeStamp(date);
+        let boardInfo = Object.create(currentBoardInfo);
+        Object.defineProperty(boardInfo, 'createdDate',{value: newDate,configurable: true});
+        setInfo(boardInfo);
+        setCommentList(currentBoardInfo.comments);
+        setNoOfPages(Math.ceil(currentBoardInfo.comments.length / itemsPerPage));
+
+    });
+
+    useEffect(() => {
+        GET_BOARD_INFO({ currentBoardNo }).then((boardList) => {
+            setCommentList(boardList.comments);
+            setNoOfPages(Math.ceil(boardList.comments.length / itemsPerPage));
         })
-        setChange(false)
+         setChange(false);
     }, [change])
 
     const handleDelete = () => {
-        const boardNo = props.data;
+        const boardNo = currentBoardNo;
         DELETE_BOARD({ boardNo }).then(() => {
-            props.handleBack();
+            setClickInfo("BoardPage");
         });
     }
 
@@ -179,13 +166,17 @@ export const BoardDetail:React.FC<ChildProps> = (props:any) =>  {
         }
         else {
             const content = comment;
-            const boardNo = props.data;
-            const userNo = uNo
+            const boardNo = currentBoardNo;
+            const userNo = user.no;
             CREATE_COMMENT({ content, boardNo, userNo }).then((res) => {
-                if (res.data === "ADD_COMMENT") {
+                if (res === true) {
                     alert("comment added");
                     setChange(true);
                     setComment("");
+                }
+                else{
+                    alert("error");
+                    setChange(true);
                 }
             })
         }
@@ -197,7 +188,6 @@ export const BoardDetail:React.FC<ChildProps> = (props:any) =>  {
 
     return (
         <div className={classes.root}>
-            {/* <img src={StickyMemoImg} className={classes.stickyMemo}></img> */}
             <Grid container>
                 <Grid item xs={12}>
                     <div className={classes.cardImgBack}>
@@ -219,13 +209,13 @@ export const BoardDetail:React.FC<ChildProps> = (props:any) =>  {
 
                  </Grid>
                 <Grid item xs={12} className={classes.commentArea}>
-                    <Button className={classes.backBtn} variant="contained" onClick={props.handleBack}>뒤로가기</Button>
+                    <Button className={classes.backBtn} variant="contained" onClick={()=>{setClickInfo('BoardPage')}}>뒤로가기</Button>
                     {isAuth ? (<Button className={classes.delBtn} variant="contained" onClick={handleDelete}>삭제하기</Button>) : (<></>)}
                     <List>
                         {commentList.slice((page - 1) * itemsPerPage, page * itemsPerPage).map((value:any,index:any) =>
                             (
                             <ListItem key={index}>
-                                <ListItemText primary={value.name} secondary={value.c_content} />
+                                <ListItemText primary={value.user.name} secondary={value.c_content} />
                             </ListItem>
                             )
                         )}

@@ -5,6 +5,9 @@ import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import React from 'react';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { userInfoState } from '../recoil/selector';
+import { clickState } from '../recoil/atoms';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -20,13 +23,13 @@ const useStyles = makeStyles((theme) => ({
     },
 }))
 
-interface ChildProps {
-    userInfo?: any;
-    userInfoBack?: any;
+export interface UserInfoProps {
 }
 
-export const UserInfo:React.FC<ChildProps> = (props:any) => {
+export const UserInfo:React.FC<UserInfoProps> = () => {
     const classes = useStyles();
+    const user = useRecoilValue(userInfoState);
+    const [clickInfo, setClickInfo] = useRecoilState(clickState);
 
     return (
         <div>
@@ -39,33 +42,26 @@ export const UserInfo:React.FC<ChildProps> = (props:any) => {
                         Name
                     </Typography>
                     <Typography className={classes.pos} color="textSecondary">
-                        {props.userInfo.name}
+                        {user.name}
                     </Typography>
 
                     <Typography variant="h5" component="h2">
                         No
                     </Typography>
                     <Typography className={classes.pos} color="textSecondary">
-                        {props.userInfo.no}
-                    </Typography>
-
-                    <Typography variant="h5" component="h2">
-                        Password
-                    </Typography>
-                    <Typography className={classes.pos} color="textSecondary">
-                        {props.userInfo.pw}
+                        {user.no}
                     </Typography>
 
                     <Typography variant="h5" component="h2">
                         Created Date
                     </Typography>
                     <Typography className={classes.pos} color="textSecondary">
-                        {props.userInfo.createdDate}
+                        {user.createdDate}
                     </Typography>
 
                 </CardContent>
                 <CardActions>
-                    <Button variant="contained" color="secondary" onClick={props.userInfoBack}>Back</Button>
+                    <Button variant="contained" color="secondary" onClick={()=>{setClickInfo('BoardPage')}}>Back</Button>
                 </CardActions>
             </Card>
         </div>

@@ -1,9 +1,5 @@
-import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
-
-const client = new ApolloClient({
-  uri: 'http://localhost:50002/graphql',
-  cache: new InMemoryCache(),
-});
+import { gql } from '@apollo/client';
+import { client } from './ApolloClient.option';
 
 const LOGIN = async (userInfo: any) => {
   const res = await client.mutate({
@@ -43,8 +39,11 @@ const LOGOUT = () => {
   localStorage.removeItem('user');
 };
 
-const GET_USER_INFO = () => {
-  return JSON.parse(localStorage.getItem('user') || '{}');
+const GET_USER_INFO = async () => {
+  const token = localStorage.getItem('user') || {};
+  if (Object.keys(token).length === 0) return false;
+  const userInfo = await DECODE_TOKEN(token);
+  return userInfo.decodeUser;
 };
 
 const GET_ALL_BOARD = async () => {
@@ -60,6 +59,7 @@ const GET_ALL_BOARD = async () => {
             id
             name
           }
+          createdDate
         }
       }
     `,
@@ -68,40 +68,44 @@ const GET_ALL_BOARD = async () => {
 };
 
 const GET_BOARD_INFO = async (no: any) => {
+  const num = parseInt(no.currentBoardNo);
+  if (num === -1) return 'error';
   const res = await client.query({
-    variables: { no: no },
+    variables: { no: num },
     query: gql`
-      query getBoardInfo($no: Number!) {
+      query getBoardInfo($no: Float!) {
         getBoardInfo(no: $no) {
           title
           b_content
           createdDate
           modifiedDate
           user {
+            no
             id
-            boards {
-              no
-              title
-            }
+            name
           }
           comments {
             c_content
             no
             userNo
             createdDate
+            user {
+              name
+            }
           }
         }
       }
     `,
   });
-  return res.data;
+  return res.data.getBoardInfo;
 };
 
 const CREATE_BOARD = async (boardInfo: any) => {
+  const userNo = parseInt(boardInfo.no);
   const res = await client.mutate({
-    variables: { title: boardInfo.title, b_content: boardInfo.cotent, userNo: boardInfo.no },
+    variables: { title: boardInfo.title, b_content: boardInfo.content, userNo: userNo },
     mutation: gql`
-      mutation createBoard($title: String!, $b_content: String!, $userNo: Number!) {
+      mutation createBoard($title: String!, $b_content: String!, $userNo: Float!) {
         createBoard(data: { title: $title, b_content: $b_content, userNo: $userNo })
       }
     `,
@@ -110,10 +114,11 @@ const CREATE_BOARD = async (boardInfo: any) => {
 };
 
 const DELETE_BOARD = async (boardInfo: any) => {
-  const res = await client.mutate({
-    variables: { no: boardInfo.boardNo },
+  const boardNo = parseInt(boardInfo.boardNo);
+  await client.mutate({
+    variables: { no: boardNo },
     mutation: gql`
-      mutation deleteBoard($no: Number!) {
+      mutation deleteBoard($no: Float!) {
         deleteBoard(no: $no)
       }
     `,
@@ -121,7 +126,7 @@ const DELETE_BOARD = async (boardInfo: any) => {
 };
 
 const DECODE_TOKEN = async (token: any) => {
-  let tokenData = token.token.slice(1, token.token.length - 1);
+  let tokenData = token;
   const res = await client.query({
     variables: { token: tokenData },
     query: gql`
@@ -140,11 +145,11 @@ const DECODE_TOKEN = async (token: any) => {
 };
 
 const DELETE_USER = async (data: any) => {
-  console.log(data);
+  const userNo = parseInt(data.userNo);
   const res = await client.mutate({
-    variables: { no: data.userNo },
+    variables: { no: userNo },
     mutation: gql`
-      mutation deleteUser($no: Number!) {
+      mutation deleteUser($no: Float!) {
         deleteUser(no: $no)
       }
     `,
@@ -153,10 +158,12 @@ const DELETE_USER = async (data: any) => {
 };
 
 const GET_MYBOARD = async (data: any) => {
+  console.log(data);
+  const userNo = parseInt(data.userNo);
   const res = await client.query({
-    variables: { userNo: data.userNo },
+    variables: { userNo: userNo },
     query: gql`
-      query getMyBoard($userNo: Number!) {
+      query getMyBoard($userNo: Float!) {
         getMyBoard(userNo: $userNo) {
           no
           title
@@ -170,15 +177,17 @@ const GET_MYBOARD = async (data: any) => {
 };
 
 const CREATE_COMMENT = async (data: any) => {
+  const boardNo = parseInt(data.boardNo);
+  const userNo = parseInt(data.userNo);
   const res = await client.mutate({
-    variables: { content: data.content, boardNo: data.boardNo, userNo: data.userNo },
+    variables: { content: data.content, boardNo: boardNo, userNo: userNo },
     mutation: gql`
-      mutation createComment($content: String!, $boardNo: Number!, $userNo: Number!) {
+      mutation createComment($content: String!, $boardNo: Float!, $userNo: Float!) {
         createComment(data: { content: $content, boardNo: $boardNo, userNo: $userNo })
       }
     `,
   });
-  return res.data;
+  return res.data.createComment;
 };
 
 export {
