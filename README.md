@@ -8,7 +8,7 @@
 - [x] API는 GraphQL로 만들고, Frontend에서 Client는 Apollo Client 를 사용합니다.
 
 - 실행방법
-    1. 각 프런트, 백엔드 파일 경로 패키지 설치 - yarn
+    1. 각 프런트, 백엔드 파일 경로 이동 후 패키지 설치 - yarn
     2. Frontend 파일경로 - yarn start
     3. Backend 파일경로 - yarn start
 
@@ -26,12 +26,12 @@
        1. 페이지단위로 story작성하기로 결정하고 부분적으로만 storybook으로 만들고 프로젝트 범위의 모든 페이지를 storybook으로 작성하지 못함.
        특정 페이지 단위에서 recoil-selector를 통해 사용자 데이터 가져오는 부분이나 특정 게시판 번호를 통해 가져오는 부분이 storybook으로는 정의되지않아있어서 에러표시.
 
-       1. storybook-addon-apollo-client 에드온을 사용해서 데이터 표시를 할려고했는데 Component의 paremter로 Apollo query를 정의해줘도 스토리북 페이지 내에서 표시가 안됨. 이유는 버전에러또는 그냥 코드작성문제라 생각됨.
+       1. storybook-addon-apollo-client 에드온을 사용해서 데이터 표시를 할려고했는데 Component의 paremter로 Apollo query를 정의해줘도 스토리북 페이지 내에서 표시가 안됨. 이유는 버전에러 또는 코드내 문제?
 
     storybook-addon-apollo-client 참고 사이트:
        1. https://storybook.js.org/addons/storybook-addon-apollo-client
        2. https://github.com/lifeiscontent/realworld/blob/master/web/src/containers/editor-page/index.stories.js
-       3. 에러라 생각하는 이유 링크: https://github.com/apollographql/apollo-client/issues/7081
+       3. https://github.com/apollographql/apollo-client/issues/7081
 
 #### 2. Rocoil
 
