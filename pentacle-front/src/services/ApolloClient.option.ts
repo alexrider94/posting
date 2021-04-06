@@ -1,10 +1,9 @@
-import { ApolloClient, DefaultOptions, InMemoryCache, NormalizedCacheObject } from '@apollo/client';
-
+import { ApolloClient, DefaultOptions, HttpLink, InMemoryCache, NormalizedCacheObject } from '@apollo/client';
+import fetch from 'cross-fetch';
 /**
  * ApolloClient API options
  */
 const PORT: number = 50002;
-const apiUrl: string = `http://localhost:${PORT}/graphql`;
 const defaultOptions: DefaultOptions = {
   watchQuery: {
     fetchPolicy: 'no-cache',
@@ -20,7 +19,7 @@ const defaultOptions: DefaultOptions = {
  * Apollo Client
  */
 export const client: ApolloClient<NormalizedCacheObject> = new ApolloClient({
-  uri: apiUrl,
+  link: new HttpLink({ uri: `http://localhost:${PORT}/graphql`, fetch }),
   cache: new InMemoryCache(),
   defaultOptions: defaultOptions,
 });

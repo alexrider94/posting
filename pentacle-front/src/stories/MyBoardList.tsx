@@ -29,7 +29,7 @@ export const MyBoardList:React.FC<ChildProps> = () =>{
                 setBoard(res);
             }
         });
-    });
+    },[]);
 
     return (
         <div>

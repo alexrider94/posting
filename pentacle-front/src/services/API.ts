@@ -97,6 +97,7 @@ const GET_BOARD_INFO = async (no: any) => {
       }
     `,
   });
+  console.log(res);
   return res.data.getBoardInfo;
 };
 

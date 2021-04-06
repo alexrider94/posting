@@ -141,7 +141,7 @@ export const BoardDetail:React.FC<BoardDetailProps> = () =>  {
         setCommentList(currentBoardInfo.comments);
         setNoOfPages(Math.ceil(currentBoardInfo.comments.length / itemsPerPage));
 
-    });
+    },[]);
 
     useEffect(() => {
         GET_BOARD_INFO({ currentBoardNo }).then((boardList) => {

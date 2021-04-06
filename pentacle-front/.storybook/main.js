@@ -1,8 +1,6 @@
 module.exports = {
-  "stories": [
-    "../src/**/*.stories.@(js|jsx|ts|tsx)",
-  ],
-  webpackFinal: async config => {
+  stories: ['../src/**/*.stories.@(js|jsx|ts|tsx)'],
+  webpackFinal: async (config) => {
     config.module.rules.push({
       test: /\.(ts|tsx)$/,
       loader: require.resolve('babel-loader'),
@@ -13,11 +11,11 @@ module.exports = {
     config.resolve.extensions.push('.ts', '.tsx');
     return config;
   },
-  "addons": [
-    "@storybook/addon-links",
-    "@storybook/addon-essentials",
-    "@storybook/preset-create-react-app",
+  addons: [
+    '@storybook/addon-links',
+    '@storybook/addon-essentials',
+    '@storybook/preset-create-react-app',
     '@storybook/addon-viewport/register',
+    'storybook-addon-apollo-client',
   ],
-
-}
+};
