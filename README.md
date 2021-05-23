@@ -1,18 +1,9 @@
-# 펜타클 과제 - 안효진
-
-- [x] React + TypeScript 를 기본으로 합니다.
-- [x] UI 개발에는 Material Design 을 적용하기 위해 Material UI 를 사용합니다.
-- [ ] Component-Driven Development 방식으로 개발하고, 이 개발방식을 쉽게 하기 위한 Storybook 을 사용해 컴포넌트를 개발하고 관리할 수 있도록 합니다.
-- [x] State Management: 여러 컴포넌트의 상태는 Recoil 을 사용하고, 단일 컴포넌트 내의 상태관리는 Hooks 를 사용합니다.
-- [x] Test-Driven Development : jest를 사용하여 테스트를 만듭니다.
-- [x] API는 GraphQL로 만들고, Frontend에서 Client는 Apollo Client 를 사용합니다.
-
 - 실행방법
     1. 각 프런트, 백엔드 파일 경로 이동 후 패키지 설치 - yarn
     2. Frontend 파일경로 - yarn start
     3. Backend 파일경로 - yarn start
 
-## [과제 개발 과정]
+## [개발 과정]
 
 ### < FrontEnd >
 
