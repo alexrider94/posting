@@ -4,3 +4,9 @@
   font-weight: normal;
   font-style: normal;
 }
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}

@@ -1,7 +1,8 @@
 - 실행방법
-    1. 각 프런트, 백엔드 파일 경로 이동 후 패키지 설치 - yarn
-    2. Frontend 파일경로 - yarn start
-    3. Backend 파일경로 - yarn start
+  1. 각 프런트, 백엔드 파일 경로 이동 후 패키지 설치 - yarn
+  2. Frontend 파일경로 - yarn start
+  3. Backend 파일경로 - yarn start
+  4. ormconfig.json - mysql 설정
 
 ## [개발 과정]
 
